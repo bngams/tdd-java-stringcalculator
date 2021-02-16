@@ -6,10 +6,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static java.lang.Integer.parseInt;
+
 public class StringCalculator {
 
     public static int add(String numbers) {
-        // check string full empty (blank => no whitespace
+        // check string full empty (blank => no whitespace) // " "
         if(numbers.isBlank()){
             return 0;
         }
@@ -23,7 +25,13 @@ public class StringCalculator {
                     .matcher(delimiters);
             delimiter += "|" + m.results().map(MatchResult::group).collect(Collectors.joining("|"));
         }
-        // var infers Map<Boolean, List<Integer>>
+        // var infers Map<Boolean, List<Integer>> - JAVA 10
+        Arrays.stream(numbers.split(delimiter))
+                .flatMap(value -> Arrays.stream(value.split("\n")))
+                .flatMap(value -> Arrays.stream(value.split("|")))
+                .map(Integer::parseInt)
+                .reduce(0, Integer::sum);
+
         var allIntegers = Arrays.stream(numbers.split(delimiter))
                 .map(String::trim)
                 .map(Integer::parseInt)
@@ -39,4 +47,5 @@ public class StringCalculator {
         // other return statement
         // return allIntegers.get(true).stream().mapToInt(Integer::intValue).sum();
     }
+
 }
