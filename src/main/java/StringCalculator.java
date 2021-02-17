@@ -23,6 +23,7 @@ public class StringCalculator {
             numbers = numbers.substring(delimiterEnd + 1);
             Matcher m = Pattern.compile("\\[([^]]+)\\]")
                     .matcher(delimiters);
+            // my delimiters ,|\\R  | + %|-
             delimiter += "|" + m.results().map(MatchResult::group).collect(Collectors.joining("|"));
         }
         // var infers Map<Boolean, List<Integer>> - JAVA 10
@@ -32,6 +33,7 @@ public class StringCalculator {
                 .map(Integer::parseInt)
                 .reduce(0, Integer::sum);
 
+        // var infers Map<Boolean, List<Integer>> - JAVA 10
         var allIntegers = Arrays.stream(numbers.split(delimiter))
                 .map(String::trim)
                 .map(Integer::parseInt)
