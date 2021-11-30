@@ -1,4 +1,6 @@
 import java.lang.reflect.Array;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.regex.MatchResult;
@@ -26,18 +28,15 @@ public class StringCalculator {
             // my delimiters ,|\\R  | + %|-
             delimiter += "|" + m.results().map(MatchResult::group).collect(Collectors.joining("|"));
         }
-        // var infers Map<Boolean, List<Integer>> - JAVA 10
-        Arrays.stream(numbers.split(delimiter))
-                .flatMap(value -> Arrays.stream(value.split("\n")))
-                .flatMap(value -> Arrays.stream(value.split("|")))
-                .map(Integer::parseInt)
-                .reduce(0, Integer::sum);
 
         // var infers Map<Boolean, List<Integer>> - JAVA 10
+        // parseInt can trigger the NumberFormatException directly
+        // exception management https://javadevcentral.com/throw-checked-exceptions-in-java-streams
         var allIntegers = Arrays.stream(numbers.split(delimiter))
                 .map(String::trim)
                 .map(Integer::parseInt)
                 .filter(x -> x <= 1000)
+                .peek(StringCalculator::negativeNotAllowed)
                 .collect(Collectors.partitioningBy(x -> x > 0));
                 // to directly count on downstream
                 //.collect(Collectors.partitioningBy(x -> x > 0, Collectors.counting()));
@@ -48,6 +47,12 @@ public class StringCalculator {
         return allIntegers.get(true).stream().collect(Collectors.summingInt(Integer::intValue));
         // other return statement
         // return allIntegers.get(true).stream().mapToInt(Integer::intValue).sum();
+    }
+
+    static void negativeNotAllowed(Integer n) throws RuntimeException{
+        if(n < 0 ) {
+            throw new RuntimeException("Negatives are not allowed: " + n.toString());
+        }
     }
 
 }
